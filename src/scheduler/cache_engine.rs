@@ -208,17 +208,23 @@ impl CacheEngine {
             let mut gpu_cache = self.get_kv_cache();
             let (dst_key_cache, dst_value_cache) = gpu_cache.get_mut(i).unwrap();
             // Swap (copy) key blocks
+            #[cfg(feature = "cuda")]
             try_api!(swap_blocks(
                 src_key_cache.clone(),
                 dst_key_cache,
                 src_to_dst.clone()
             ));
+            #[cfg(not(feature = "cuda"))]
+            {}
             // Swap (copy) key blocks
+            #[cfg(feature = "cuda")]
             try_api!(swap_blocks(
                 src_value_cache.clone(),
                 dst_value_cache,
                 src_to_dst.clone()
             ));
+            #[cfg(not(feature = "cuda"))]
+            {}
         }
         Ok(())
     }
@@ -231,17 +237,23 @@ impl CacheEngine {
 
             let (dst_key_cache, dst_value_cache) = self.cpu_cache.get_mut(i).unwrap();
             // Swap (copy) key blocks
+            #[cfg(feature = "cuda")]
             try_api!(swap_blocks(
                 src_key_cache.clone(),
                 dst_key_cache,
                 src_to_dst.clone()
             ));
+            #[cfg(not(feature = "cuda"))]
+            {}
             // Swap (copy) key blocks
+            #[cfg(feature = "cuda")]
             try_api!(swap_blocks(
                 src_value_cache.clone(),
                 dst_value_cache,
                 src_to_dst.clone()
             ));
+            #[cfg(not(feature = "cuda"))]
+            {}
         }
         Ok(())
     }
@@ -254,7 +266,10 @@ impl CacheEngine {
         let (key_caches, value_caches) = caches;
 
         // NOTE(EricLBuehler): This may synchronize the CPU and GPU
+        #[cfg(feature = "cuda")]
         try_api!(unsafe { copy_blocks(key_caches, value_caches, src_to_dst) });
+        #[cfg(not(feature = "cuda"))]
+        {}
 
         Ok(())
     }

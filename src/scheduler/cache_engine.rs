@@ -5,8 +5,9 @@ use std::{
 
 use candle_core::{DType, Device, Tensor};
 
+#[cfg(feature = "cuda")]
+use crate::backend::{copy_blocks, swap_blocks};
 use crate::{
-    backend::{copy_blocks, swap_blocks},
     openai::{models::Config, responses::APIError},
     try_api,
 };
